@@ -1,18 +1,12 @@
 <?php
+// NOTE: This means that I don't have to manually require all the files in the src dir
 require __DIR__ . '/vendor/autoload.php';
 
-use Slim\Factory\AppFactory;
+// Load the app, container, and controllers 
+$loaded = require __DIR__ . '/src/dependencies.php';
+$app = $loaded['app'];
+$container = $loaded['container'];
 
-$app = AppFactory::create();
-
-// Initialise 
-require __DIR__ . '/db.php';
-require __DIR__ . '/dependencies.php';
-require __DIR__ . '/middleware.php';
-
-// Routes
-require __DIR__ . '/routes/auth.php';
-require __DIR__ . '/routes/products.php';
-require __DIR__ . '/routes/scrape.php';
+require __DIR__ . '/src/middleware.php';
 
 $app->run();
