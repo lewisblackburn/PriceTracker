@@ -7,6 +7,10 @@ $loaded = require __DIR__ . '/src/dependencies.php';
 $app = $loaded['app'];
 $container = $loaded['container'];
 
-require __DIR__ . '/src/middleware.php';
+$middleware = require __DIR__ . '/src/middleware.php';
+$middleware($app);
+
+$routes = require __DIR__ . '/src/routes.php';
+$routes($app, $container);  
 
 $app->run();

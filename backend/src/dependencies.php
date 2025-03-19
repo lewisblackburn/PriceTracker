@@ -1,6 +1,13 @@
 <?php
+
+namespace App;
+
 use DI\Container;
+use PDO;
 use Slim\Factory\AppFactory;
+use App\Controllers\AuthController;
+use App\Controllers\ProductController;
+use App\Controllers\PriceHistoryController;
 
 $container = new Container();
 
@@ -20,28 +27,25 @@ $container->set('secretKey', function () {
     return "vQkOkReCcVruFfa1VHrMl2HHtcjIECF5JCmvteeqYqo=";
 });
 
-$container->set(\App\Controllers\AuthController::class, function ($container) {
-    return new \App\Controllers\AuthController(
+$container->set(AuthController::class, function ($container) {
+    return new AuthController(
         $container->get('db'), 
         $container->get('secretKey')
     );
 });
 
-$container->set(\App\Controllers\ProductController::class, function ($container) {
-    return new \App\Controllers\ProductController(
-        $container->get('db'), 
+$container->set(ProductController::class, function ($container) {
+    return new ProductController(
+        $container->get('db')
+    );
+});
+
+$container->set(PriceHistoryController::class, function ($container) {
+    return new PriceHistoryController(
+        $container->get('db')
     );
 });
 
 $app = AppFactory::createFromContainer($container);
-
-// Routes
-$authController = $container->get(\App\Controllers\AuthController::class);
-$app->post('/api/auth/login', [$authController, 'login']);
-$app->post('/api/auth/register', [$authController, 'register']);
-
-$productController = $container->get(\App\Controllers\ProductController::class);
-$app->get('/api/products/getAll', [$productController, 'getAll']);
-$app->post('/api/products/create', [$productController, 'create']);
 
 return ['app' => $app, 'container' => $container];
