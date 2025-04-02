@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Utils\Scraper;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 use App\Utils\ResponseHelper;
@@ -37,12 +38,16 @@ class ProductController
     public function create(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();
+
+        $scrapedData = Scraper::scrapeProduct($data['url']);
+        $startingPrice = $scrapedData['price'] ?? 0;
+        
         $stmt = $this->pdo->prepare("INSERT INTO products (name, url, current_price) VALUES (?, ?, ?)");
-        $stmt->execute([$data['name'], $data['url'], $data['current_price']]);
+        $stmt->execute([$data['name'], $data['url'], $startingPrice]);
 
         $productId = $this->pdo->lastInsertId();
         $stmt = $this->pdo->prepare("INSERT INTO price_history (product_id, price) VALUES (?, ?)");
-        $stmt->execute([$productId, $data['current_price']]);
+        $stmt->execute([$productId, $startingPrice]);
 
         return ResponseHelper::jsonResponse($response, ["message" => "Product created"], 201);
     }

@@ -5,6 +5,7 @@ namespace App;
 use App\Controllers\AuthController;
 use App\Controllers\ProductController;
 use App\Controllers\PriceHistoryController;
+use App\Controllers\ScrapeController;
 use App\Middleware\AuthMiddleware;
 
 return function ($app, $container) { 
@@ -12,6 +13,7 @@ return function ($app, $container) {
     $authController = $container->get(AuthController::class);
     $productController = $container->get(ProductController::class);
     $priceHistoryController = $container->get(PriceHistoryController::class);
+    $scrapeController = $container->get(ScrapeController::class);
     
     $secretKey = $container->get('secretKey');
     $authMiddleware = new AuthMiddleware($secretKey);
@@ -39,4 +41,6 @@ return function ($app, $container) {
         $group->post('/create', [$priceHistoryController, 'create'])->add($authMiddleware);
         $group->delete('/deleteLast', [$priceHistoryController, 'deleteLast'])->add($authMiddleware);
     });
+
+    $app->post('/api/scrape', [$scrapeController, 'scrape'])->add($authMiddleware);
 };
