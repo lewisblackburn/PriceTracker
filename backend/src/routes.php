@@ -17,6 +17,10 @@ return function ($app, $container) {
     
     $secretKey = $container->get('secretKey');
     $authMiddleware = new AuthMiddleware($secretKey);
+    
+    $app->options('/{routes:.+}', function ($request, $response) {
+        return $response;
+    });
 
 
     $app->group('/api/auth', function ($group) use ($authController, $authMiddleware) {
@@ -42,5 +46,5 @@ return function ($app, $container) {
         $group->delete('/deleteLast', [$priceHistoryController, 'deleteLast'])->add($authMiddleware);
     });
 
-    $app->post('/api/scrape', [$scrapeController, 'scrape'])->add($authMiddleware);
+    $app->post('/api/scrape', [$scrapeController, 'scrape']);
 };

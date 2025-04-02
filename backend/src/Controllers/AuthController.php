@@ -28,9 +28,8 @@ class AuthController
 
         if ($user && password_verify($data['password'], $user['password'])) {
             $token = JWT::encode(['id' => $user['id'], 'email' => $user['email']], $this->secretKey, 'HS256');
-            $response->getBody()->write(json_encode(["token" => $token]));
 
-            return ResponseHelper::jsonResponse($response, []);
+            return ResponseHelper::jsonResponse($response, ["token" => $token]);
 
         }
 
@@ -52,7 +51,9 @@ class AuthController
         $stmt = $this->pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
         $stmt->execute([$data['email'], $hashedPassword]);
 
-        return ResponseHelper::jsonResponse($response, ["message" => "User created"], 201);
+        $token = JWT::encode(['id' => $this->pdo->lastInsertId(), 'email' => $data['email']], $this->secretKey, 'HS256');
+
+        return ResponseHelper::jsonResponse($response, ["token" => $token]);
     }
 
     public function profile(Request $request, Response $response): Response
