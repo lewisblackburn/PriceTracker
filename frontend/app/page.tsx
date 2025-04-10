@@ -1,14 +1,9 @@
-"use client"
+'use client';
 
-import LogoutButton from "@/components/logout-button";
-import { withAuth } from "./hoc/withAuth";
+import { withAuth } from './hoc/withAuth';
 
 export function HomePage() {
-  return (
-    <div>
-      <LogoutButton />
-    </div>
-  );
+  return <div></div>;
 }
 
-export default withAuth(HomePage)
+export default withAuth(HomePage);

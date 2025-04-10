@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import RegisterForm from "@/features/authentication/components/register-form"
+import RegisterForm from '@/features/authentication/components/register-form';
 
 export default function RegisterPage() {
   return (
@@ -9,5 +9,5 @@ export default function RegisterPage() {
         <RegisterForm />
       </div>
     </div>
-  )
+  );
 }

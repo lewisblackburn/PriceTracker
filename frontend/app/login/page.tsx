@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import LoginForm from "@/features/authentication/components/login-form"
+import LoginForm from '@/features/authentication/components/login-form';
 
 export default function LoginPage() {
   return (
@@ -9,5 +9,5 @@ export default function LoginPage() {
         <LoginForm />
       </div>
     </div>
-  )
+  );
 }

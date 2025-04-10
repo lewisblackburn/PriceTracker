@@ -1,48 +1,58 @@
-import { useForm } from "react-hook-form"
-import { loginSchema } from "../schemas/login.schema"
-import * as z from "zod"
+import { useForm } from 'react-hook-form';
+import { loginSchema } from '../schemas/login.schema';
+import * as z from 'zod';
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { toast } from "sonner"
-import { Lock } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+import { Lock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginForm() {
-  const router = useRouter()
+  const router = useRouter();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "test@example.com",
-      password: "mypassword",
+      email: 'test@example.com',
+      password: 'mypassword',
     },
-  })
+  });
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/login`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
-
-    const responseData = await response.json()
+    const responseData = await response.json();
 
     if (response.ok && responseData.token) {
-      localStorage.setItem("token", responseData.token)
-      router.push("/")
+      localStorage.setItem('token', responseData.token);
+      router.push('/');
     } else {
       toast.error('Error', {
         icon: <Lock className="size-4" />,
         description: responseData.error,
-        closeButton: true
-      })
+        closeButton: true,
+      });
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -57,7 +67,8 @@ export default function LoginForm() {
                 <Input placeholder="user@user.com" {...field} />
               </FormControl>
               <FormDescription>
-                This is your email address. It will be used to login to your account.
+                This is your email address. It will be used to login to your
+                account.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -82,5 +93,5 @@ export default function LoginForm() {
         <Button type="submit">Submit</Button>
       </form>
     </Form>
-  )
+  );
 }

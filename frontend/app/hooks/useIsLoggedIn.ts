@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import useAuth from "./useAuth"
+import useAuth from './useAuth';
 
 export function useIsLoggedIn(): boolean {
-  const user = useAuth()
-  return !!user
+  const { user } = useAuth();
+  return !!user;
 }
