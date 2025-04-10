@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -16,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import { registerSchema } from '../schemas/register.schema';
 
 export default function RegisterForm() {
@@ -29,7 +29,41 @@ export default function RegisterForm() {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+  const registerMutation = useMutation(
+    async (data: z.infer<typeof registerSchema>) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/register`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      const responseData = await response.json();
+
+      if (!response.ok || !responseData.token) {
+        throw new Error(responseData.error || 'Registration failed');
+      }
+      return responseData;
+    },
+    {
+      onSuccess: (data) => {
+        localStorage.setItem('token', data.token);
+        router.push('/');
+      },
+      onError: (error: Error) => {
+        toast.error('Error', {
+          icon: <Lock className="size-4" />,
+          description: error.message || 'An error occurred during registration',
+          closeButton: true,
+        });
+      },
+    }
+  );
+
+  const onSubmit = (data: z.infer<typeof registerSchema>) => {
     if (data.password !== data.confirmPassword) {
       toast.error('Passwords do not match', {
         icon: <Lock className="size-4" />,
@@ -38,29 +72,7 @@ export default function RegisterForm() {
       return;
     }
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/register`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      }
-    );
-
-    const responseData = await response.json();
-
-    if (response.ok && responseData.token) {
-      localStorage.setItem('token', responseData.token);
-      router.push('/');
-    } else {
-      toast.error('Error', {
-        icon: <Lock className="size-4" />,
-        description: responseData.error,
-        closeButton: true,
-      });
-    }
+    registerMutation.mutate(data);
   };
 
   return (
@@ -112,7 +124,9 @@ export default function RegisterForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={registerMutation.isLoading}>
+          Submit
+        </Button>
       </form>
     </Form>
   );

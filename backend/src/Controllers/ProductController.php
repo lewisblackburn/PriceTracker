@@ -19,18 +19,36 @@ class ProductController
 
     public function get(Request $request, Response $response): Response
     {
+        $user = $request->getAttribute('user');
         $data = $request->getParsedBody();
-        $stmt = $this->pdo->prepare("SELECT p.id, p.name, p.url, p.current_price, ph.price_history FROM products p LEFT JOIN (SELECT product_id, JSON_ARRAYAGG(price) AS price_history FROM price_history GROUP BY product_id) ph ON p.id = ph.product_id WHERE p.id = ?");
+        $stmt = $this->pdo->prepare("SELECT p.id, p.name, p.url, p.current_price, p.user_id, ph.price_history FROM products p LEFT JOIN (SELECT product_id, JSON_ARRAYAGG(price) AS price_history FROM price_history GROUP BY product_id) ph ON p.id = ph.product_id WHERE p.id = ?");
         $stmt->execute([$data['id']]);
         $product = $stmt->fetch();
+
+        if (!$product) {
+            return ResponseHelper::jsonResponse($response, ["error" => "Product not found"], 404);
+        }
+
+        if ($product['user_id'] !== $user->id) {
+            return ResponseHelper::jsonResponse($response, ["error" => "You do not have permission to access this product"], 403);
+        }
 
         return ResponseHelper::jsonResponse($response, $product);
     }
 
     public function getAll(Request $request, Response $response): Response
     {
-        $stmt = $this->pdo->query("SELECT p.id, p.name, p.url, p.current_price, ph.price_history FROM products p LEFT JOIN (SELECT product_id, JSON_ARRAYAGG(price) AS price_history FROM price_history GROUP BY product_id) ph ON p.id = ph.product_id");
+        $user = $request->getAttribute('user');
+        $stmt = $this->pdo->query("SELECT p.id, p.name, p.url, p.current_price, p.user_id, ph.price_history FROM products p LEFT JOIN (SELECT product_id, JSON_ARRAYAGG(price) AS price_history FROM price_history GROUP BY product_id) ph ON p.id = ph.product_id");
         $products = $stmt->fetchAll();
+
+
+        foreach ($products as $product) {
+            if ($product['user_id'] === $user->id) {
+                // NOTE: Remove a product if the user id does not match
+                unset($products[$product['id']]);
+            }
+        }
 
         return ResponseHelper::jsonResponse($response, $products);
     }
@@ -54,18 +72,20 @@ class ProductController
 
     public function update(Request $request, Response $response): Response
     {
+        $user = $request->getAttribute('user');
         $data = $request->getParsedBody();
-        $stmt = $this->pdo->prepare("UPDATE products SET name = ?, url = ? WHERE id = ?");
-        $stmt->execute([$data['name'], $data['url'], $data['id']]);
+        $stmt = $this->pdo->prepare("UPDATE products SET name = ?, url = ? WHERE id = ? AND user_id = ?");
+        $stmt->execute([$data['name'], $data['url'], $data['id'], $user->id]);
 
         return ResponseHelper::jsonResponse($response, ["message" => "Product updated"]);
     }
 
     public function delete(Request $request, Response $response): Response
     {
+        $user = $request->getAttribute('user');
         $data = $request->getParsedBody();
-        $stmt = $this->pdo->prepare("DELETE FROM products WHERE id = ?");
-        $stmt->execute([$data['id']]);
+        $stmt = $this->pdo->prepare("DELETE FROM products WHERE id = ? AND user_id = ?");
+        $stmt->execute([$data['id'], $user->id]);
 
         return ResponseHelper::jsonResponse($response, ["message" => "Product deleted"]);
     }

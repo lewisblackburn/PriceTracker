@@ -8,6 +8,7 @@ app.post("/scrape", async (req, res) => {
   const { url } = req.body;
   try {
     const { name, price } = await scrapeProduct(url);
+    console.log("Scraped product", name, price);  
     res.json({ success: true, name, price });
   } catch (err) {
     console.error(err);

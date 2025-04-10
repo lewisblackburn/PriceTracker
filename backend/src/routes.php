@@ -17,7 +17,7 @@ return function ($app, $container) {
     
     $secretKey = $container->get('secretKey');
     $authMiddleware = new AuthMiddleware($secretKey);
-    
+
     $app->options('/{routes:.+}', function ($request, $response) {
         return $response;
     });
@@ -30,8 +30,8 @@ return function ($app, $container) {
     });
 
     $app->group('/api/products', function ($group) use ($productController, $authMiddleware) {
-        $group->get('/get', [$productController, 'get']);
-        $group->get('/getAll', [$productController, 'getAll']);
+        $group->post('/get', [$productController, 'get'])->add($authMiddleware);
+        $group->get('/getAll', [$productController, 'getAll'])->add($authMiddleware);
         
         $group->post('/create', [$productController, 'create'])->add($authMiddleware);
         $group->put('/update', [$productController, 'update'])->add($authMiddleware);
@@ -39,8 +39,8 @@ return function ($app, $container) {
     });
 
     $app->group('/api/price_history', function ($group) use ($priceHistoryController, $authMiddleware) {
-        $group->get('/get', [$priceHistoryController, 'get']);
-        $group->get('/getAll', [$priceHistoryController, 'getAll']);
+        $group->get('/get', [$priceHistoryController, 'get'])->add($authMiddleware);
+        $group->get('/getAll', [$priceHistoryController, 'getAll'])->add($authMiddleware);
         
         $group->post('/create', [$priceHistoryController, 'create'])->add($authMiddleware);
         $group->delete('/deleteLast', [$priceHistoryController, 'deleteLast'])->add($authMiddleware);

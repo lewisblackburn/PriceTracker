@@ -21,8 +21,7 @@ import useAuth from '@/app/hooks/useAuth';
 
 const navItems = [
   { name: 'Home', href: '/' },
-  { name: 'Prices', href: '/prices' },
-  { name: 'Trends', href: '/trends' },
+  { name: 'Products', href: '/products' },
 ];
 
 export default function Navbar() {
@@ -38,7 +37,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95">
       <div className="flex h-14 items-center px-4 md:container md:px-6 mx-auto">
         <div className="flex items-center">
           <Link href="/" className="text-lg font-medium tracking-tight">
@@ -46,7 +45,6 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Desktop Navigation */}
         <div className="hidden md:flex md:flex-1 md:justify-center">
           <div className="flex gap-8">
             {navItems.map((item) => (
@@ -66,7 +64,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Desktop Auth Buttons */}
         <div className="hidden md:flex md:items-center md:gap-3">
           {isLoggedIn ? (
             <DropdownMenu>
@@ -109,7 +106,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Menu */}
         <div className="flex flex-1 justify-end md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>

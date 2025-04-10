@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { loginSchema } from '../schemas/login.schema';
 import * as z from 'zod';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -17,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -28,35 +28,50 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/login`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+  const loginMutation = useMutation(
+    async (data: z.infer<typeof loginSchema>) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/auth/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const responseData = await response.json();
+      if (!response.ok || !responseData.token) {
+        throw new Error(responseData.error || 'Login failed');
       }
-    );
-
-    const responseData = await response.json();
-
-    if (response.ok && responseData.token) {
-      localStorage.setItem('token', responseData.token);
-      router.push('/');
-    } else {
-      toast.error('Error', {
-        icon: <Lock className="size-4" />,
-        description: responseData.error,
-        closeButton: true,
-      });
+      return responseData;
+    },
+    {
+      onSuccess: (data) => {
+        localStorage.setItem('token', data.token);
+        router.push('/');
+      },
+      onError: (error: Error) => {
+        toast.error('Error', {
+          icon: <Lock className="size-4" />,
+          description: error.message || 'An error occurred during login',
+          closeButton: true,
+        });
+      },
     }
+  );
+
+  const onSubmit = (data: z.infer<typeof loginSchema>) => {
+    loginMutation.mutate(data);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8 min-w-[300px] max-w-[400px]"
+      >
         <FormField
           control={form.control}
           name="email"
@@ -90,7 +105,9 @@ export default function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={loginMutation.isLoading}>
+          Submit
+        </Button>
       </form>
     </Form>
   );

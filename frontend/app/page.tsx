@@ -1,9 +1,5 @@
 'use client';
 
-import { withAuth } from './hoc/withAuth';
-
-export function HomePage() {
-  return <div></div>;
+export default function HomePage() {
+  return <div>home</div>;
 }
-
-export default withAuth(HomePage);
