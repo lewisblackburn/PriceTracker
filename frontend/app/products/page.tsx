@@ -54,7 +54,7 @@ function ProductsPage() {
   if (!products)
     return (
       <div className="flex items-center justify-center h-64">
-        No product found
+        No products found
       </div>
     );
 
