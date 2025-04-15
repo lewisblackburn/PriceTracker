@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import useAuth from '@/app/hooks/useAuth';
+import Notifications from '@/features/notifications/components/notifications';
 
 const navItems = [
   { name: 'Home', href: '/' },
@@ -66,34 +67,37 @@ export default function Navbar() {
 
         <div className="hidden md:flex md:items-center md:gap-3">
           {isLoggedIn ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 gap-2">
-                  <User className="h-4 w-4" />
-                  <span>{user?.email || 'Account'}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Link href="/profile" className="flex w-full">
-                      Profile
-                    </Link>
+            <>
+              <Notifications />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 gap-2">
+                    <User className="h-4 w-4" />
+                    <span>{user?.email || 'Account'}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <Link href="/profile" className="flex w-full">
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/settings" className="flex w-full">
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/settings" className="flex w-full">
-                      Settings
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ) : (
             <>
               <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
@@ -107,6 +111,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex flex-1 justify-end md:hidden">
+          <Notifications />
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden">

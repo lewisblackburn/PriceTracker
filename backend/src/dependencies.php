@@ -8,8 +8,9 @@ use Slim\Factory\AppFactory;
 use App\Controllers\AuthController;
 use App\Controllers\ProductController;
 use App\Controllers\PriceHistoryController;
+use App\Controllers\ThresholdController;
 use App\Controllers\ScrapeController;
-
+use App\Controllers\NotificationsController;
 $container = new Container();
 
 $container->set('db', function () {
@@ -49,6 +50,18 @@ $container->set(PriceHistoryController::class, function ($container) {
 
 $container->set(ScrapeController::class, function ($container) {
     return new ScrapeController(
+        $container->get('db')
+    );
+});
+
+$container->set(ThresholdController::class, function ($container) {
+    return new ThresholdController(
+        $container->get('db')
+    );
+});
+
+$container->set(NotificationsController::class, function ($container) {
+    return new NotificationsController(
         $container->get('db')
     );
 });

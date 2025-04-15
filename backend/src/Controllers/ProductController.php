@@ -21,7 +21,7 @@ class ProductController
     {
         $user = $request->getAttribute('user');
         $data = $request->getParsedBody();
-        $stmt = $this->pdo->prepare("SELECT p.id, p.name, p.url, p.current_price, p.user_id, ph.price_history FROM products p LEFT JOIN (SELECT product_id, JSON_ARRAYAGG(price) AS price_history FROM price_history GROUP BY product_id) ph ON p.id = ph.product_id WHERE p.id = ?");
+        $stmt = $this->pdo->prepare("SELECT p.id, p.name, p.url, p.current_price, p.threshold, p.user_id, ph.price_history FROM products p LEFT JOIN (SELECT product_id, JSON_ARRAYAGG(price) AS price_history FROM price_history GROUP BY product_id) ph ON p.id = ph.product_id WHERE p.id = ?");
         $stmt->execute([$data['id']]);
         $product = $stmt->fetch();
 
@@ -39,7 +39,7 @@ class ProductController
     public function getAll(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
-        $stmt = $this->pdo->query("SELECT p.id, p.name, p.url, p.current_price, p.user_id, ph.price_history FROM products p LEFT JOIN (SELECT product_id, JSON_ARRAYAGG(price) AS price_history FROM price_history GROUP BY product_id) ph ON p.id = ph.product_id");
+        $stmt = $this->pdo->query("SELECT p.id, p.name, p.url, p.current_price, p.threshold, p.user_id, ph.price_history FROM products p LEFT JOIN (SELECT product_id, JSON_ARRAYAGG(price) AS price_history FROM price_history GROUP BY product_id) ph ON p.id = ph.product_id");
         $products = $stmt->fetchAll();
 
 
@@ -62,8 +62,8 @@ class ProductController
         $startingPrice = $scrapedData['price'] ?? 0;
         $name = $scrapedData['name'];
 
-        $stmt = $this->pdo->prepare("INSERT INTO products (name, url, current_price, user_id) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$name, $data['url'], $startingPrice, $user->id]);
+        $stmt = $this->pdo->prepare("INSERT INTO products (name, url, current_price, threshold, user_id) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $data['url'], $startingPrice, $data['threshold'], $user->id]);
 
         $productId = $this->pdo->lastInsertId();
         $stmt = $this->pdo->prepare("INSERT INTO price_history (product_id, price) VALUES (?, ?)");
@@ -76,8 +76,8 @@ class ProductController
     {
         $user = $request->getAttribute('user');
         $data = $request->getParsedBody();
-        $stmt = $this->pdo->prepare("UPDATE products SET name = ?, url = ? WHERE id = ? AND user_id = ?");
-        $stmt->execute([$data['name'], $data['url'], $data['id'], $user->id]);
+        $stmt = $this->pdo->prepare("UPDATE products SET name = ?, url = ?, threshold = ? WHERE id = ? AND user_id = ?");
+        $stmt->execute([$data['name'], $data['url'], $data['threshold'], $data['id'], $user->id]);
 
         return ResponseHelper::jsonResponse($response, ["message" => "Product updated"]);
     }
@@ -90,5 +90,16 @@ class ProductController
         $stmt->execute([$data['id'], $user->id]);
 
         return ResponseHelper::jsonResponse($response, ["message" => "Product deleted"]);
+    }
+
+    public function setThreshold(Request $request, Response $response): Response
+    {
+        $user = $request->getAttribute('user');
+        $data = $request->getParsedBody();
+
+        $stmt = $this->pdo->prepare("UPDATE products SET threshold = ? WHERE id = ? AND user_id = ?");
+        $stmt->execute([$data['threshold'], $data['id'], $user->id]);
+
+        return ResponseHelper::jsonResponse($response, ["message" => "Threshold set"]);
     }
 }
