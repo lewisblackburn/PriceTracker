@@ -55,19 +55,21 @@ class ProductController
 
     public function create(Request $request, Response $response): Response
     {
+        $user = $request->getAttribute('user');
         $data = $request->getParsedBody();
 
         $scrapedData = Scraper::scrapeProduct($data['url']);
         $startingPrice = $scrapedData['price'] ?? 0;
-        
-        $stmt = $this->pdo->prepare("INSERT INTO products (name, url, current_price) VALUES (?, ?, ?)");
-        $stmt->execute([$data['name'], $data['url'], $startingPrice]);
+        $name = $scrapedData['name'];
+
+        $stmt = $this->pdo->prepare("INSERT INTO products (name, url, current_price, user_id) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$name, $data['url'], $startingPrice, $user->id]);
 
         $productId = $this->pdo->lastInsertId();
         $stmt = $this->pdo->prepare("INSERT INTO price_history (product_id, price) VALUES (?, ?)");
         $stmt->execute([$productId, $startingPrice]);
 
-        return ResponseHelper::jsonResponse($response, ["message" => "Product created"], 201);
+        return ResponseHelper::jsonResponse($response, ["message" => "Product created", "id" => $productId], 201);
     }
 
     public function update(Request $request, Response $response): Response

@@ -24,6 +24,7 @@ class Scraper
         $data = json_decode($res->getBody(), true);
 
         return [
+            'name' => $data['name'],
             'price' => $data['price']
         ];
     }

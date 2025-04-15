@@ -9,7 +9,12 @@ export const productSchema = z.object({
   price_history: z.array(priceHistorySchema),
 });
 
-export const createProductSchema = productSchema.omit({ id: true });
+export const createProductSchema = productSchema.omit({
+  id: true,
+  name: true,
+  current_price: true,
+  price_history: true,
+});
 export const updateProductSchema = productSchema.omit({ id: true });
 export const deleteProductSchema = z.object({
   id: z.number(),

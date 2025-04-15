@@ -12,9 +12,10 @@ type PriceChartProps = {
 };
 
 const PriceChart: React.FC<PriceChartProps> = ({ prices }) => {
-  const numericPrices = prices.map((price) =>
-    parseFloat(price.replace(/[^0-9.]/g, ''))
-  );
+  const numericPrices = prices.map((price) => {
+    const numericValue = parseFloat(price.replace(/[^0-9.]/g, ''));
+    return isNaN(numericValue) ? 0 : numericValue;
+  });
 
   const chartData = numericPrices.map((price, index) => ({
     price,

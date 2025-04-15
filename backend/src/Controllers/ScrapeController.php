@@ -25,6 +25,11 @@ class ScrapeController
         foreach ($products as $product) {
             $data = Scraper::scrapeProduct($product['url']);
 
+            if (isset($data['error'])) {
+                // NOTE: Skip if failed
+                continue;
+            }
+
             if ($product['current_price'] != $data['price']) {
                 $stmt = $this->pdo->prepare("UPDATE products SET current_price = ? WHERE id = ?");
                 $stmt->execute([$data['price'], $product['id']]);
