@@ -41,7 +41,7 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/95">
       <div className="flex h-14 items-center px-4 md:container md:px-6 mx-auto">
         <div className="flex items-center">
-          <Link href="/" className="text-lg font-medium tracking-tight">
+          <Link href="/" className="text-lg font-semibold tracking-tight">
             Price Tracker
           </Link>
         </div>
@@ -83,11 +83,6 @@ export default function Navbar() {
                     <DropdownMenuItem>
                       <Link href="/profile" className="flex w-full">
                         Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link href="/settings" className="flex w-full">
-                        Settings
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
@@ -150,14 +145,6 @@ export default function Navbar() {
                           asChild
                         >
                           <Link href="/profile">Profile</Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="justify-start w-full px-2 rounded-md"
-                          asChild
-                        >
-                          <Link href="/settings">Settings</Link>
                         </Button>
                         <Button
                           variant="ghost"
