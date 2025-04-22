@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import PriceChart from '@/components/shared/price-history-graph';
 import { Product } from '@/features/products/schemas/product.schema';
+import Link from 'next/link';
 
 function UserProfilePage() {
   const [token, setToken] = useState<string | null>(null);
@@ -68,7 +69,7 @@ function UserProfilePage() {
     );
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-4">
+    <div className="block md:container mx-auto px-4 py-8 space-y-4">
       <div>
         <h1 className="text-2xl font-bold">User Profile</h1>
         <p className="text-lg text-muted-foreground">{user?.email}</p>
@@ -83,7 +84,12 @@ function UserProfilePage() {
               : product.price_history;
           return (
             <div key={product.id}>
-              <PriceChart prices={prices} />
+              <Link href={`/products/${product.id}`}>
+                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                  <h2 className="text-lg text-gray-600 mb-1">{product.name}</h2>
+                  <PriceChart prices={prices} />
+                </div>
+              </Link>
             </div>
           );
         })}
