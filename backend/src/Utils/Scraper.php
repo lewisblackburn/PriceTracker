@@ -14,7 +14,7 @@ class Scraper
     */
     public static function scrapeProduct(string $url): array
     {
-        $scraperEndpoint = getenv('SCRAPER_API_URL');
+        $scraperEndpoint = $_ENV['SCRAPER_API_URL'];
 
         $client = new Client();
         $res = $client->request('POST', $scraperEndpoint, [
