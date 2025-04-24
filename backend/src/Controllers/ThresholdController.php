@@ -18,28 +18,56 @@ class ThresholdController
 
     public function threshold(Request $request, Response $response): Response
     {
-        $data = $request->getParsedBody();
-
-        $stmt = $this->pdo->query("SELECT id, name, current_price, threshold, user_id from products");
-        $products = $stmt->fetchAll();
+        $stmt     = $this->pdo->query("SELECT id, name, current_price, threshold, user_id FROM products");
+        $products = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($products as $product) {
-            $threshold = floatval($product['threshold']);
-            $currentPrice = floatval($product['current_price']);
+            // NOTE: Convert the different values to the correct type
+            $currentPrice = (float) filter_var($product['current_price'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+            $threshold    = (float) filter_var($product['threshold'],    FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 
+            // NOTE: If the current price is below or equal to the threshold, send a notification
             if ($currentPrice <= $threshold) {
-                // NOTE: if notification already exists, skip
-                $stmt = $this->pdo->prepare("SELECT * FROM notifications WHERE user_id = ? AND type = ? AND title = ? AND message = ? AND is_read = 0"); 
-                $stmt->execute([$product['user_id'], 'product', $product['name'], 'The product ' . $product['name'] . ' is below or equal to the threshold']);
-                $notification = $stmt->fetch();
+                $message = sprintf(
+                    'The product "%s" is below or equal to the threshold (%.2f)',
+                    $product['name'],
+                    $threshold
+                );
 
-                if (!$notification) {
-                    $stmt = $this->pdo->prepare("INSERT INTO notifications (user_id, type, title, message, url) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->execute([$product['user_id'], 'product', $product['name'], 'The product ' . $product['name'] . ' is below or equal to the threshold', '/products/' . $product['id']]);
+                $check = $this->pdo->prepare(
+                    "SELECT 1
+                    FROM notifications
+                    WHERE user_id  = :user_id
+                        AND type     = :type
+                        AND title    = :title
+                        AND message  = :message
+                        AND is_read  = 0
+                    LIMIT 1"
+                );
+                $check->execute([
+                    ':user_id' => $product['user_id'],
+                    ':type'    => 'product',
+                    ':title'   => $product['name'],
+                    ':message' => $message,
+                ]);
+
+                // NOTE: If the notification doesn't exist, insert it
+                if ($check->rowCount() === 0) {
+                    $insert = $this->pdo->prepare(
+                        "INSERT INTO notifications (user_id, type, title, message, url)
+                            VALUES (:user_id, :type, :title, :message, :url)"
+                    );
+                    $insert->execute([
+                        ':user_id' => $product['user_id'],
+                        ':type'    => 'product',
+                        ':title'   => $product['name'],
+                        ':message' => $message,
+                        ':url'     => '/products/' . $product['id'],
+                    ]);
                 }
-            }  
+            }
         }
 
-        return ResponseHelper::jsonResponse($response, ["message" => "Threshold's checked"]);
+        return ResponseHelper::jsonResponse($response, ['message' => "Thresholds checked"]);
     }
 }
