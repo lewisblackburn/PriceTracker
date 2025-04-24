@@ -3,8 +3,9 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
+
 $dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+$dotenv->safeLoad();
 
 // Load the app, container, and controllers 
 $loaded = require __DIR__ . '/src/dependencies.php';
