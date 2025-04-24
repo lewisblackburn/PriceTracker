@@ -4,7 +4,7 @@ import { priceHistorySchema } from './price-history.schema';
 export const productSchema = z.object({
   id: z.number(),
   name: z.string(),
-  url: z.string(),
+  url: z.string().url(),
   current_price: z.string(),
   price_history: z.array(priceHistorySchema),
 });

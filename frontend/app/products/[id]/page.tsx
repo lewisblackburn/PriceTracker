@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import PriceChart from '@/components/shared/price-history-graph';
 import { withAuth } from '@/app/hoc/withAuth';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 
 function ProductPage() {

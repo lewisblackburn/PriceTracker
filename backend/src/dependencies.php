@@ -14,20 +14,26 @@ use App\Controllers\NotificationsController;
 $container = new Container();
 
 $container->set('db', function () {
+    $host     = $_ENV['DB_HOST'];
+    $name     = $_ENV['DB_NAME'];
+    $user     = $_ENV['DB_USER'];
+    $password = $_ENV['DB_PASSWORD'];
+
     return new PDO(
-        "mysql:host=localhost;dbname=price_tracker", 
-        "tracker_user", 
-        "tracker_user_password", 
+        "mysql:host={$host};dbname={$name};charset=utf8mb4",
+        $user,
+        $password,
         [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]
     );
 });
 
 $container->set('secretKey', function () {
-    return "vQkOkReCcVruFfa1VHrMl2HHtcjIECF5JCmvteeqYqo=";
+    return $_ENV['APP_SECRET'];
 });
+
 
 $container->set(AuthController::class, function ($container) {
     return new AuthController(

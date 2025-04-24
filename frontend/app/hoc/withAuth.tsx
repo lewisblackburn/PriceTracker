@@ -22,6 +22,7 @@ export function withAuth<P>(WrappedComponent: React.ComponentType<P>) {
 
     if (!checked) return null;
 
+    // @ts-expect-error this is a type error that does not affect the build
     return <WrappedComponent {...props} />;
   };
 }

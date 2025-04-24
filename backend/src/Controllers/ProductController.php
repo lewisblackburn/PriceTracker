@@ -62,8 +62,8 @@ class ProductController
         $startingPrice = $scrapedData['price'] ?? 0;
         $name = $scrapedData['name'];
 
-        $stmt = $this->pdo->prepare("INSERT INTO products (name, url, current_price, threshold, user_id) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $data['url'], $startingPrice, $data['threshold'], $user->id]);
+        $stmt = $this->pdo->prepare("INSERT INTO products (name, url, current_price, user_id) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$name, $data['url'], $startingPrice, $user->id]);
 
         $productId = $this->pdo->lastInsertId();
         $stmt = $this->pdo->prepare("INSERT INTO price_history (product_id, price) VALUES (?, ?)");
