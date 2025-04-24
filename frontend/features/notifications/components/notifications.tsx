@@ -7,7 +7,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { Bell } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Notification } from '../schemas/notification.schema';
@@ -15,6 +20,7 @@ import { useRouter } from 'next/navigation';
 
 export const Notifications = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(null);
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
@@ -23,7 +29,7 @@ export const Notifications = () => {
     setToken(localStorage.getItem('token'));
   }, []);
 
-  const { data: notifications, refetch } = useQuery({
+  const { data: notifications } = useQuery({
     queryKey: ['notifications'],
     queryFn: () =>
       fetch(
@@ -53,15 +59,15 @@ export const Notifications = () => {
         }
       ),
     onSuccess: () => {
-      refetch().then(() => {
-        router.push(selectedNotification?.url ?? '/');
-        setSelectedNotification(null);
-      });
+      router.push(selectedNotification?.url ?? '/');
+      setSelectedNotification(null);
+      queryClient.invalidateQueries(['notifications']);
     },
     // NOTE: Still navigate to the URL even if the request fails
     onError: () => {
       router.push(selectedNotification?.url ?? '/');
       setSelectedNotification(null);
+      queryClient.invalidateQueries(['notifications']);
     },
   });
 
