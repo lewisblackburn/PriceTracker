@@ -58,6 +58,11 @@ export const Notifications = () => {
         setSelectedNotification(null);
       });
     },
+    // NOTE: Still navigate to the URL even if the request fails
+    onError: () => {
+      router.push(selectedNotification?.url ?? '/');
+      setSelectedNotification(null);
+    },
   });
 
   return (
