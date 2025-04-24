@@ -151,8 +151,9 @@ function ProductPage() {
               variant="outline"
               onClick={() => setThreshold.mutate()}
               className="w-full md:w-auto"
+              disabled={setThreshold.isLoading}
             >
-              Set Threshold
+              {setThreshold.isLoading ? 'Setting...' : 'Set Threshold'}
             </Button>
             <Button
               variant="destructive"
