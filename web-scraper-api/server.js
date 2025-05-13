@@ -6,13 +6,19 @@ app.use(express.json());
 
 app.post("/scrape", async (req, res) => {
   const { url } = req.body;
+  if (!url) {
+    return res
+      .status(400)
+      .json({ error: "Missing required field `url` in request body" });
+  }
+
   try {
     const { name, price } = await scrapeProduct(url);
-    console.log("Scraped product", name, price);  
+    console.log("Scraped product:", name, price);
     res.json({ success: true, name, price });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Scraping failed" });
+    console.error("Scraping error:", err.message);
+    res.status(502).json({ error: err.message || "Scraping failed" });
   }
 });
 
